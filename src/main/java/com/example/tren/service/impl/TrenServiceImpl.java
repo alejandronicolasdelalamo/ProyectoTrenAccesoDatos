@@ -34,7 +34,7 @@ public class TrenServiceImpl implements TrenService {
         return trenRepository.findAll(pageable);
     }
 
-    // Guarda el tren y su log en la misma transacción: o se guardan los dos o ninguno
+    // El log se escribe en el archivo solo si el tren se guarda correctamente (tras el commit)
     @Override
     @Transactional
     public Tren guardar(Tren tren) {
@@ -58,7 +58,7 @@ public class TrenServiceImpl implements TrenService {
                 .orElseThrow(() -> new TrenNoEncontradoException("Tren no encontrado con ID: " + id));
     }
 
-    // Elimina el tren y registra el log en la misma transacción
+    // Elimina el tren y escribe el log en el archivo tras el commit
     @Override
     @Transactional
     public void eliminar(Long id) {
