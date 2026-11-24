@@ -22,7 +22,6 @@ import java.util.List;
 @Service
 public class LogServiceImpl implements LogService {
 
-    // Formato de cada línea: fecha | operacion | entidad | entidadId | detalle
     private static final String SEPARADOR = " | ";
     private static final String SEPARADOR_REGEX = " \\| ";
 
@@ -33,8 +32,6 @@ public class LogServiceImpl implements LogService {
         Files.createDirectories(archivo.getParent());
     }
 
-    // Si hay una transacción en curso, la línea se escribe solo cuando ésta hace commit:
-    // así, si la operación falla y se revierte, no queda rastro en el archivo
     @Override
     public void registrar(OperacionLog operacion, String entidad, Long entidadId, String detalle) {
         String linea = LocalDateTime.now() + SEPARADOR
@@ -55,7 +52,6 @@ public class LogServiceImpl implements LogService {
         }
     }
 
-    // Lee el archivo y devuelve los logs con los más recientes primero
     @Override
     public List<LogTransaccion> listarTodos() {
         if (!Files.exists(archivo)) {
@@ -68,7 +64,6 @@ public class LogServiceImpl implements LogService {
                     logs.add(parsear(linea));
                 }
             }
-            // El archivo se escribe siempre al final, así que invertir el orden da los más recientes primero
             Collections.reverse(logs);
             return logs;
         } catch (IOException e) {
@@ -76,7 +71,6 @@ public class LogServiceImpl implements LogService {
         }
     }
 
-    // synchronized: evita que dos peticiones simultáneas mezclen sus líneas
     private synchronized void escribir(String linea) {
         try {
             Files.writeString(archivo, linea + System.lineSeparator(), StandardCharsets.UTF_8,
@@ -87,14 +81,12 @@ public class LogServiceImpl implements LogService {
     }
 
     private LogTransaccion parsear(String linea) {
-        // El límite de 5 partes deja intacto el detalle aunque contenga " | "
         String[] partes = linea.split(SEPARADOR_REGEX, 5);
         Long entidadId = partes[3].isEmpty() ? null : Long.valueOf(partes[3]);
         return new LogTransaccion(OperacionLog.valueOf(partes[1]), partes[2], entidadId,
                 partes.length > 4 ? partes[4] : "", LocalDateTime.parse(partes[0]));
     }
 
-    // Un salto de línea dentro del detalle rompería el formato de una línea por log
     private String limpiar(String texto) {
         return texto == null ? "" : texto.replace("\r", " ").replace("\n", " ");
     }

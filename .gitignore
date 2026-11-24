@@ -37,3 +37,6 @@ build/
 
 ### Logs de la aplicacion ###
 logs/
+
+.claude/
+.vscode/

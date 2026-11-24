@@ -18,7 +18,6 @@ public class LogRestController {
         this.logService = logService;
     }
 
-    // Devuelve todos los logs en JSON, los más recientes primero
     @GetMapping
     public List<LogTransaccion> listar() {
         return logService.listarTodos();

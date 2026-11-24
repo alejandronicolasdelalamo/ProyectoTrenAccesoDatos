@@ -34,11 +34,9 @@ public class TrenServiceImpl implements TrenService {
         return trenRepository.findAll(pageable);
     }
 
-    // El log se escribe en el archivo solo si el tren se guarda correctamente (tras el commit)
     @Override
     @Transactional
     public Tren guardar(Tren tren) {
-        // Sin id es un tren nuevo (CREAR); con id es una modificación (ACTUALIZAR)
         boolean esNuevo = (tren.getId() == null);
         Tren guardado = trenRepository.save(tren);
 
@@ -58,14 +56,12 @@ public class TrenServiceImpl implements TrenService {
                 .orElseThrow(() -> new TrenNoEncontradoException("Tren no encontrado con ID: " + id));
     }
 
-    // Elimina el tren y escribe el log en el archivo tras el commit
     @Override
     @Transactional
     public void eliminar(Long id) {
         if (!trenRepository.existsById(id)) {
             throw new TrenNoEncontradoException("Tren no encontrado con ID: " + id);
         }
-        // Se lee antes de borrar para poder guardar sus datos en el log
         Tren tren = trenRepository.findById(id).orElse(null);
         trenRepository.deleteById(id);
         logService.registrar(OperacionLog.ELIMINAR, "Tren", id, descripcion(tren));
@@ -76,7 +72,6 @@ public class TrenServiceImpl implements TrenService {
         return trenRepository.existsByMatricula(matricula);
     }
 
-    // Texto corto con los datos principales del tren para el campo detalle del log
     private String descripcion(Tren tren) {
         if (tren == null) {
             return "Tren eliminado";
