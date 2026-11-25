@@ -4,8 +4,19 @@ Aplicación web para gestionar una flota de trenes (crear, listar, editar y elim
 **Java 21, Spring Boot, Thymeleaf y MySQL**. Incluye un generador de datos aleatorios y un
 **registro (log) de transacciones** en archivo de texto.
 
-Este README explica cómo está hecho cada apartado y qué he aprendido por el camino, para poder
+Este README explica cómo está hecho cada apartado y qué hemos aprendido por el camino, para poder
 contárselo a la clase.
+
+---
+
+## Resumen del proyecto
+
+- **Qué es:** una aplicación web CRUD para gestionar una flota de trenes, hecha en grupo.
+- **Cómo está hecha:** arquitectura por capas (controller → service → repository) con Spring Boot,
+  Thymeleaf y MySQL.
+- **Extras:** generador de 20.000 trenes aleatorios con Datafaker y log de transacciones en
+  archivo de texto, consultable en JSON desde `/api/logs`.
+- **Dónde verla:** `http://localhost:8081/trenes` una vez arrancada.
 
 ---
 
@@ -57,7 +68,7 @@ base de datos.
 
 Instala MySQL 8 y comprueba que el servicio está en marcha (en Windows aparece como `MySQL80`).
 
-> **Problema que tuve:** al escribir `mysql` en la terminal salía *"no se reconoce como un
+> **Problema que tuvimos:** al escribir `mysql` en la terminal salía *"no se reconoce como un
 > comando"*. MySQL sí estaba instalado y el servicio corriendo. Lo que pasaba es que la carpeta
 > `C:\Program Files\MySQL\MySQL Server 8.0\bin` **no estaba en el PATH** de Windows, así que la
 > terminal no sabía dónde buscar `mysql.exe`.
@@ -79,7 +90,7 @@ GRANT ALL PRIVILEGES ON tren_db.* TO 'tren_app'@'localhost';
 FLUSH PRIVILEGES;
 ```
 
-> **Problema que tuve:** la app no arrancaba con
+> **Problema que tuvimos:** la app no arrancaba con
 > `Access denied for user 'tren_app'@'localhost'`. MySQL funcionaba y la app llegaba a
 > conectar, pero ese usuario no existía (o su contraseña no coincidía con la del archivo de
 > configuración). Se arregla creando el usuario como arriba, con la misma contraseña que pongas
@@ -128,7 +139,7 @@ El primer arranque tarda unos 40 segundos porque carga 20.000 trenes (ver siguie
 - La plantilla `listar.html` la recorre con `th:each="tren : ${trenes}"`.
 - Thymeleaf genera el HTML **ya completo en el servidor**; el navegador solo lo pinta.
 
-**Cómo comprobarlo tú mismo:**
+**Cómo comprobarlo:**
 1. Abre `/trenes` y pulsa **Ctrl+U** (ver código fuente): verás las filas `<tr>` con los datos ya
    escritos y ningún `th:each`.
 2. En **F12 → Network** solo hay una petición HTML, sin `fetch` ni XHR.
@@ -164,10 +175,10 @@ Cómo está hecho (`LogServiceImpl`):
 - La línea se escribe **solo después de que la transacción de base de datos se confirme**
   (`afterCommit`). Así, si la operación falla y se deshace, no queda un log falso.
 - `/api/logs` lee el archivo y devuelve los registros en JSON, del más reciente al más antiguo.
-- Primero se guardaba en una tabla de la base de datos; después lo cambié a un archivo de texto.
+- Primero se guardaba en una tabla de la base de datos; después lo cambiamos a un archivo de texto.
   La carpeta `logs/` está en `.gitignore`.
 
-## 8. Qué he aprendido
+## 8. Qué hemos aprendido
 
 - **Capas en Spring Boot:** controller → service → repository, y por qué separar
   responsabilidades.
