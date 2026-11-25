@@ -1,4 +1,3 @@
--- Script de datos generado automáticamente
 DELETE FROM trenes;
 
 INSERT INTO trenes (fabricante, modelo, matricula, anio, precio, velocidad_maxima, propulsion, tipo_servicio, color) VALUES ('Bombardier', 'Mallard 4468 V-58', 'TR-0001', 1940, 3342652.57, 143, 'HIBRIDA', 'CERCANIAS', 'Gris');

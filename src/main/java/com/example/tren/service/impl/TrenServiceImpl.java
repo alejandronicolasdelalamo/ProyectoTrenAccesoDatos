@@ -1,12 +1,15 @@
 package com.example.tren.service.impl;
 
 import com.example.tren.exception.TrenNoEncontradoException;
+import com.example.tren.model.OperacionLog;
 import com.example.tren.model.Tren;
 import com.example.tren.repository.TrenRepository;
+import com.example.tren.service.LogService;
 import com.example.tren.service.TrenService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -14,9 +17,11 @@ import java.util.List;
 public class TrenServiceImpl implements TrenService {
 
     private final TrenRepository trenRepository;
+    private final LogService logService;
 
-    public TrenServiceImpl(TrenRepository trenRepository) {
+    public TrenServiceImpl(TrenRepository trenRepository, LogService logService) {
         this.trenRepository = trenRepository;
+        this.logService = logService;
     }
 
     @Override
@@ -30,8 +35,19 @@ public class TrenServiceImpl implements TrenService {
     }
 
     @Override
+    @Transactional
     public Tren guardar(Tren tren) {
-        return trenRepository.save(tren);
+        boolean esNuevo = (tren.getId() == null);
+        Tren guardado = trenRepository.save(tren);
+
+        OperacionLog operacion;
+        if (esNuevo) {
+            operacion = OperacionLog.CREAR;
+        } else {
+            operacion = OperacionLog.ACTUALIZAR;
+        }
+        logService.registrar(operacion, "Tren", guardado.getId(), descripcion(guardado));
+        return guardado;
     }
 
     @Override
@@ -41,15 +57,25 @@ public class TrenServiceImpl implements TrenService {
     }
 
     @Override
+    @Transactional
     public void eliminar(Long id) {
         if (!trenRepository.existsById(id)) {
             throw new TrenNoEncontradoException("Tren no encontrado con ID: " + id);
         }
+        Tren tren = trenRepository.findById(id).orElse(null);
         trenRepository.deleteById(id);
+        logService.registrar(OperacionLog.ELIMINAR, "Tren", id, descripcion(tren));
     }
 
     @Override
     public boolean existePorMatricula(String matricula) {
         return trenRepository.existsByMatricula(matricula);
+    }
+
+    private String descripcion(Tren tren) {
+        if (tren == null) {
+            return "Tren eliminado";
+        }
+        return tren.getFabricante() + " " + tren.getModelo() + " (matrícula " + tren.getMatricula() + ")";
     }
 }
